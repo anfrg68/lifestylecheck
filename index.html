@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINT Lifestyle Check</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #ec4899;
+            --accent-grad: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-light: #6b7280;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            
+            --bg-secondary: #f9fafb;
+            --bg-hover: #f3f4f6;
+            --border-color: #e5e7eb;
+            --dot-color: #e5e7eb;
+            --input-bg: #ffffff;
+        }
+
+        body.dark-mode {
+            --bg: #111827;
+            --card-bg: #1f2937;
+            --text-main: #f9fafb;
+            --text-light: #9ca3af;
+            --bg-secondary: #374151;
+            --bg-hover: #4b5563;
+            --border-color: #4b5563;
+            --dot-color: #4b5563;
+            --input-bg: #374151;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg);
+            background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            color: var(--text-main);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        .theme-toggle:hover { transform: scale(1.1); border-color: var(--primary); }
+
+        #app {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 2vh;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            padding: 30px 24px;
+            animation: fadeIn 0.4s ease-out;
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.3s;
+        }
+
+        h1, h2, h3 {
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5em;
+        }
+
+        h1 { font-size: 2rem; background: var(--accent-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 1.5rem; color: var(--text-main); padding-right: 40px; }
+        p { color: var(--text-light); line-height: 1.6; margin-bottom: 1.5rem; }
+
+        .btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--accent-grad);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:active { transform: scale(0.98); }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--text-light);
+            margin-top: 10px;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            width: auto;
+            border-radius: 8px;
+        }
+        
+        .btn-link {
+            background: #e0e7ff;
+            color: var(--primary-dark);
+            margin-top: 10px;
+            font-size: 0.9rem;
+            padding: 10px;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option-card {
+            display: flex;
+            align-items: center;
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-card:hover { background: var(--bg-hover); border-color: var(--border-color); }
+        .option-card.selected { border-color: var(--primary); background: #eef2ff; }
+        body.dark-mode .option-card.selected { background: rgba(99, 102, 241, 0.2); }
+
+        .emoji-box {
+            font-size: 1.8rem;
+            margin-right: 15px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .option-text { 
+            flex: 1; 
+            font-size: 0.95rem; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .option-title { font-weight: 700; color: var(--text-main); }
+        .option-desc { font-size: 0.8rem; color: var(--text-light); margin-top: 2px; line-height: 1.3; }
+
+        .option-price { font-weight: 700; color: var(--primary); font-size: 0.9rem; margin-left: 10px; white-space: nowrap; }
+
+        .custom-input-wrapper {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        .custom-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            background: var(--input-bg);
+            color: var(--text-main);
+        }
+        .custom-input:focus { border-color: var(--primary); }
+
+        .total-cost-box {
+            text-align: center;
+            padding: 20px;
+            background: var(--primary); 
+            color: white;
+            border-radius: 20px;
+            margin-bottom: 25px;
+        }
+        .total-cost-amount { font-size: 2.5rem; font-weight: 800; color: var(--success); }
+        .total-cost-label { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; }
+
+        .meter-container {
+            height: 10px;
+            background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .meter-fill {
+            height: 100%;
+            background: var(--border-color); 
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 100%;
+            transition: width 1s ease-out;
+        }
+
+        .job-card {
+            background: var(--bg-secondary);
+            border-left: 5px solid var(--primary);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        .job-title { font-weight: 700; color: var(--text-main); display: block; }
+        .job-salary { color: var(--success); font-weight: 600; font-size: 0.9rem; }
+        
+        .summary-list {
+            list-style: none;
+            margin-bottom: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+        }
+        .summary-item { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; padding-bottom: 5px; border-bottom: 1px dashed var(--border-color); }
+        
+        .hidden { display: none; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-color); transition: background 0.3s; }
+        .dot.active { background: var(--primary); }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 5px;
+        }
+        .status-elite { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .status-standard { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        body.dark-mode .status-elite { background: #7f1d1d; color: #fee2e2; border-color: #991b1b; }
+        body.dark-mode .status-standard { background: #064e3b; color: #d1fae5; border-color: #065f46; }
+
+        .career-hint {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 5px;
+            display: block;
+            font-style: italic;
+        }
+
+        /* NEUE STYLES FÜR KATEGORIE-GRID */
+        .category-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .category-btn {
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 20px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .category-btn:hover {
+            border-color: var(--primary);
+            background: var(--bg-hover);
+            transform: translateY(-2px);
+        }
+        .cat-icon { font-size: 2rem; }
+        .cat-label { font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
+        .section-header {
+            display: flex; 
+            align-items: center; 
+            margin-bottom: 15px; 
+            gap: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <!-- JAVASCRIPT WILL INJECT CONTENT HERE -->
+</div>
+
+<script>
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const btn = document.getElementById('themeBtn');
+        if(btn) {
+            btn.innerHTML = document.body.classList.contains('dark-mode') ? '☀️' : '🌑';
+        }
+    }
+
+    function getThemeBtnHTML() {
+        const isDark = document.body.classList.contains('dark-mode');
+        return `<button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">${isDark ? '☀️' : '🌑'}</button>`;
+    }
+
+    const categories = [
+        {
+            id: 'location',
+            title: 'Location Check',
+            question: 'Wo zieht\'s dich hin?',
+            isMultiplierFactor: true,
+            options: [
+                { text: 'Großstadt-Vibe', desc: 'Teures Pflaster, alles vor der Tür', emoji: '🌆', value: 1.4 },
+                { text: 'Vorstadt-Siedlung', desc: 'Der Mix: Ruhig aber nah dran', emoji: '🏡', value: 1.0 },
+                { text: 'Land-Leben', desc: 'Günstiger, viel Platz, weite Wege', emoji: '🚜', value: 0.8 }
+            ]
+        },
+        {
+            id: 'housing',
+            title: 'Wohnsituation',
+            question: 'Wie haust du?',
+            useMultiplier: true,
+            allowCustom: true,
+            options: [
+                { text: 'Hotel Mama', desc: 'Fast umsonst / Kostgeld', emoji: '👩‍👦', value: 150 },
+                { text: 'WG-Zimmer', desc: 'Günstig & wild', emoji: '🛋️', value: 450 },
+                { text: 'Eigene kleine Wohnung', desc: 'Standard, 1-2 Zimmer', emoji: '🔑', value: 750 },
+                { text: 'Penthouse / Loft', desc: 'Teuer, Dachterrasse & Aussicht', emoji: '🥂', value: 1800 }
+            ]
+        },
+        {
+            id: 'mobility',
+            title: 'Mobilität',
+            question: 'Wie kommst du von A nach B?',
+            useMultiplier: false,
+            allowCustom: true,
+            options: [
+                { text: 'D-Ticket & Füße', desc: 'Günstig, 63€ Flatrate', emoji: '🚆', value: 63 },
+                { text: 'E-Scooter & Sharing', desc: 'Flexibel, summiert sich aber', emoji: '🛴', value: 90 },
+                { text: 'Rostlaube (Gebraucht)', desc: 'Reparaturen & Versicherung', emoji: '🚗', value: 250 },
+                { text: 'Solide Familienkutsche', desc: 'Teuer im Unterhalt', emoji: '🚙', value: 450 },
+                { text: 'Dicke Karre / Sportwagen', desc: 'Leasing + Sprit + Versicherung', emoji: '🏎️', value: 900 }
+            ]
+        },
+        {
+            id: 'food',
+            title: 'Food & Drinks',
+            question: 'Was kommt auf den Teller?',
+            useMultiplier: true,
+            allowCustom: true,
+            options: [
+                { text: 'Discounter', desc: 'Quick & Dirty, Nudeln mit Pesto', emoji: '🍝', value: 180 },
+                { text: 'Gym-Rat / Meal Prep', desc: 'Viel Protein, Hühnchen & Quark', emoji: '🥦', value: 300 },
+                { text: 'Döner & Pizza Service', desc: 'Standard "Ich kann nicht kochen"', emoji: '🍕', value: 450 },
+                { text: 'Bio & Healthy', desc: 'Teurer Supermarkt & Reformhaus', emoji: '🥑', value: 500 },
+                { text: 'Restaurant & Insta-Food', desc: 'Täglich essen gehen, Luxus', emoji: '🍣', value: 750 }
+            ]
+        },
+        {
+            id: 'style',
+            title: 'Style & Drip',
+            question: 'Wie wichtig ist dir dein Look?',
+            useMultiplier: false,
+            allowCustom: true,
+            options: [
+                { text: 'Second Hand / Vinted', desc: 'Flohmarkt-Style, günstig & nachhaltig', emoji: '👕', value: 30 },
+                { text: 'Fast Fashion', desc: 'H&M, Zara, Shein - Standard', emoji: '👗', value: 80 },
+                { text: 'Marken & Hypebeast', desc: 'Nike, Supreme, Teure Sneaker', emoji: '👟', value: 250 },
+                { text: 'Glow Up / Luxury', desc: 'Designer-Klamotten + Barber/Beauty', emoji: '💎', value: 450 }
+            ]
+        },
+        {
+            id: 'abos',
+            title: 'Abos & Digitales',
+            question: 'Was läuft im Hintergrund?',
+            useMultiplier: false,
+            allowCustom: true,
+            options: [
+                { text: 'WLAN-Schnorrer', desc: 'Nur WhatsApp & Free YouTube', emoji: '📡', value: 15 },
+                { text: 'Der Standard', desc: 'Spotify & Netflix, Handyvertrag Mittel', emoji: '🎧', value: 40 },
+                { text: 'Gamer Life', desc: 'GamePass, Twitch Subs, Battle Pass', emoji: '🎮', value: 60 },
+                { text: 'Full Connected', desc: 'Alle Streams, Cloud, Premium-Abos', emoji: '☁️', value: 100 }
+            ]
+        },
+        {
+            id: 'tech',
+            title: 'Tech-Check',
+            question: 'Welche Hardware brauchst du?',
+            useMultiplier: false,
+            allowCustom: true,
+            options: [
+                { text: 'Budget Handy', desc: 'Einsteiger-Handy, hält 4 Jahre', emoji: '📱', value: 20 },
+                { text: 'Apple-Fanboy/Girl', desc: 'Immer das neueste iPhone & Zubehör', emoji: '🍏', value: 90 },
+                { text: 'High-End Gaming Setup', desc: 'PC-Masterrace, teure Peripherie', emoji: '🖥️', value: 120 }
+            ]
+        },
+        {
+            id: 'fun',
+            title: 'Fun & Travel',
+            question: 'Freizeit & Urlaub?',
+            useMultiplier: true,
+            allowCustom: true,
+            options: [
+                { text: 'Park & Netflix', desc: 'Chillen, günstig', emoji: '🌳', value: 50 },
+                { text: 'Gaming & Kino', desc: 'Mittelklasse Freizeit', emoji: '🍿', value: 150 },
+                { text: 'Clubbing & Festivals', desc: 'Teuer: Eintritt + Drinks', emoji: '🎉', value: 300 },
+                { text: 'Weltreise Sparen', desc: 'Backpacking & große Reisen', emoji: '✈️', value: 500 }
+            ]
+        },
+        {
+            id: 'savings',
+            title: 'Savings',
+            question: 'Denkst du an morgen?',
+            useMultiplier: false,
+            allowCustom: true,
+            options: [
+                { text: 'YOLO', desc: 'Alles wird ausgegeben', emoji: '💸', value: 0 },
+                { text: 'Safety First', desc: 'Kleiner Notgroschen', emoji: '🐖', value: 50 },
+                { text: 'Big Dreams', desc: 'Führerschein oder erstes Auto', emoji: '🚗', value: 200 },
+                { text: 'Investor', desc: 'ETFs, Krypto & Aktien', emoji: '📈', value: 600 }
+            ]
+        }
+    ];
+
+    /* 
+       Kategorie Codes:
+       IT: IT & Software
+       MECH: Mechanik & Produktion
+       ELEK: Elektro & Mechatronik
+       LAB: Chemie, Physik & Bio
+       BAU: Bau, Holz & Vermessung
+       VER: Verkehr & Transport
+       MED: Medien & Design
+       GES: Gesundheit & Technik
+    */
+    const categoryDefinitions = {
+        IT: { label: "IT & Software", icon: "💻" },
+        MECH: { label: "Mechanik & Technik", icon: "⚙️" },
+        ELEK: { label: "Elektro & Mechatronik", icon: "⚡" },
+        LAB: { label: "Naturwissenschaften & Labor", icon: "🧪" },
+        BAU: { label: "Bau & Rohstoffe", icon: "🏗️" },
+        VER: { label: "Verkehr & Transport", icon: "✈️" },
+        MED: { label: "Medien & Gestaltung", icon: "🎨" },
+        GES: { label: "Gesundheit & Optik", icon: "👓" }
+    };
+
+	const mintJobs = [
+		{ title: 'Agrarwirtschaftlich-technische/r Assistent/in', netIncome: 2250, link: 'https://web.arbeitsagentur.de/berufenet/beruf/6327', cat: 'LAB' },
+		{ title: 'Amtliche/r Fachassistent/in (Fleischkontrolleur/in)', netIncome: 2150, link: 'https://web.arbeitsagentur.de/berufenet/beruf/13952', cat: 'LAB' },
+		{ title: 'Anlagenmechaniker/in', netIncome: 2700, link: 'https://web.arbeitsagentur.de/berufenet/beruf/29047', cat: 'MECH' },
+		{ title: 'Anlagenmechaniker/in - Sanitär-, Heizungs- und Klimatechnik', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/15164', cat: 'MECH' },
+		{ title: 'Assistent/in - Informatik (allgemeine Informatik)', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/67663', cat: 'IT' },
+		{ title: 'Assistent/in - Informatik (Medieninformatik)', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/7850', cat: 'IT' },
+		{ title: 'Assistent/in - Informatik (Softwaretechnik)', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/7848', cat: 'IT' },
+		{ title: 'Assistent/in - Informatik (technische Informatik)', netIncome: 2450, link: 'https://web.arbeitsagentur.de/berufenet/beruf/7743', cat: 'IT' },
+		{ title: 'Assistent/in - Informatik (Wirtschaftsinformatik)', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/7798', cat: 'IT' },
+		{ title: 'Assistent/in - Maschinenbautechnik', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/14532', cat: 'MECH' },
+		{ title: 'Audio-Engineer', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/8526', cat: 'MED' },
+		{ title: 'Aufbereitungsmechaniker/in - Braunkohle', netIncome: 2600, link: 'https://web.arbeitsagentur.de/berufenet/beruf/27427', cat: 'BAU' },
+		{ title: 'Aufbereitungsmechaniker/in - Feuerfeste/keramische Rohstoffe', netIncome: 2600, link: 'https://web.arbeitsagentur.de/berufenet/beruf/820', cat: 'BAU' },
+		{ title: 'Aufbereitungsmechaniker/in - Naturstein', netIncome: 2600, link: 'https://web.arbeitsagentur.de/berufenet/beruf/821', cat: 'BAU' },
+		{ title: 'Aufbereitungsmechaniker/in - Sand und Kies', netIncome: 2600, link: 'https://web.arbeitsagentur.de/berufenet/beruf/822', cat: 'BAU' },
+		{ title: 'Aufbereitungsmechaniker/in - Steinkohle', netIncome: 2700, link: 'https://web.arbeitsagentur.de/berufenet/beruf/819', cat: 'BAU' },
+		{ title: 'Augenoptiker/in', netIncome: 2100, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2634', cat: 'GES' },
+		{ title: 'Automatenfachmann/-frau - Automatenmechatronik', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/126835', cat: 'ELEK' },
+		{ title: 'Baustoffprüfer/in', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/13727', cat: 'BAU' },
+		{ title: 'Bautechnische/r Konstrukteur/in - Architektur', netIncome: 2650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/142962', cat: 'BAU' },
+		{ title: 'Bautechnische/r Konstrukteur/in - Ingenieurbau', netIncome: 2650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/142964', cat: 'BAU' },
+		{ title: 'Bautechnische/r Konstrukteur/in - Tief-, Verkehrswege- und Landschaftsbau', netIncome: 2650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/142963', cat: 'BAU' },
+		{ title: 'Bauzeichner/in', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/13741', cat: 'BAU' },
+		{ title: 'Behälter- und Apparatebauer/in', netIncome: 2600, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2153', cat: 'MECH' },
+		{ title: 'Berg- und Maschinenmann/-frau - Transport und Instandhaltung', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/756', cat: 'BAU' },
+		{ title: 'Berg- und Maschinenmann/-frau - Vortrieb und Gewinnung', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/757', cat: 'BAU' },
+		{ title: 'Bergbautechnologe/-technologin - Tiefbautechnik', netIncome: 2850, link: 'https://web.arbeitsagentur.de/berufenet/beruf/76437', cat: 'BAU' },
+		{ title: 'Bergbautechnologe/-technologin - Tiefbohrtechnik', netIncome: 2850, link: 'https://web.arbeitsagentur.de/berufenet/beruf/76429', cat: 'BAU' },
+		{ title: 'Berufsflugzeugführer/in (CPL (A))', netIncome: 3650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/7342', cat: 'VER' },
+		{ title: 'Berufshubschrauberführer/in (CPL (H))', netIncome: 3400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/7344', cat: 'VER' },
+		{ title: 'Biologielaborant/in', netIncome: 2600, link: 'https://web.arbeitsagentur.de/berufenet/beruf/6322', cat: 'LAB' },
+		{ title: 'Biologisch-technische/r Assistent/in', netIncome: 2350, link: 'https://web.arbeitsagentur.de/berufenet/beruf/6315', cat: 'LAB' },
+		{ title: 'Bootsbauer/in - Neu-, Aus- und Umbau', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/90474', cat: 'MECH' },
+		{ title: 'Bootsbauer/in - Technik', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/90469', cat: 'MECH' },
+		{ title: 'Chemielaborant/in', netIncome: 2850, link: 'https://web.arbeitsagentur.de/berufenet/beruf/13809', cat: 'LAB' },
+		{ title: 'Chemielaborjungwerker/in', netIncome: 2150, link: 'https://web.arbeitsagentur.de/berufenet/beruf/1169', cat: 'LAB' },
+		{ title: 'Chemikant/in', netIncome: 3100, link: 'https://web.arbeitsagentur.de/berufenet/beruf/1143', cat: 'LAB' },
+		{ title: 'Chemisch-technische/r Assistent/in', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/5793', cat: 'LAB' },
+		{ title: 'Chirurgiemechaniker/in', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2436', cat: 'MECH' },
+		{ title: 'Elektroanlagenmonteur/in', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2774', cat: 'ELEK' },
+		{ title: 'Elektroniker/in - Automatisierungs- und Systemtechnik', netIncome: 2800, link: 'https://web.arbeitsagentur.de/berufenet/beruf/134713', cat: 'ELEK' },
+		{ title: 'Elektroniker/in - Automatisierungstechnik', netIncome: 2800, link: 'https://web.arbeitsagentur.de/berufenet/beruf/15630', cat: 'ELEK' },
+		{ title: 'Elektroniker/in - Betriebstechnik', netIncome: 2750, link: 'https://web.arbeitsagentur.de/berufenet/beruf/15623', cat: 'ELEK' },
+		{ title: 'Elektroniker/in - Energie- und Gebäudetechnik', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/15636', cat: 'ELEK' },
+		{ title: 'Elektroniker/in - Gebäude- und Infrastruktursysteme', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/15621', cat: 'ELEK' },
+		{ title: 'Elektroniker/in - Gebäudesystemintegration', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/134715', cat: 'ELEK' },
+		{ title: 'Elektroniker/in - Geräte und Systeme', netIncome: 2600, link: 'https://web.arbeitsagentur.de/berufenet/beruf/15632', cat: 'ELEK' },
+		{ title: 'Elektroniker/in - Informations- und Systemtechnik', netIncome: 2700, link: 'https://web.arbeitsagentur.de/berufenet/beruf/122382', cat: 'ELEK' },
+		{ title: 'Elektroniker/in - Maschinen und Antriebstechnik (BBiG)', netIncome: 2650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/134719', cat: 'ELEK' },
+		{ title: 'Elektroniker/in - Maschinen und Antriebstechnik (HwO)', netIncome: 2650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/134718', cat: 'ELEK' },
+		{ title: 'Elektrotechnische/r Assistent/in', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/5502', cat: 'ELEK' },
+		{ title: 'Fachberater/in - Integrierte Systeme', netIncome: 2650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/7855', cat: 'IT' },
+		{ title: 'Fachberater/in - Softwaretechniken', netIncome: 2650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/35019', cat: 'IT' },
+		{ title: 'Fachinformatiker/in - Anwendungsentwicklung', netIncome: 2700, link: 'https://web.arbeitsagentur.de/berufenet/beruf/7856', cat: 'IT' },
+		{ title: 'Fachinformatiker/in - Daten- und Prozessanalyse', netIncome: 2700, link: 'https://web.arbeitsagentur.de/berufenet/beruf/133556', cat: 'IT' },
+		{ title: 'Fachinformatiker/in - Digitale Vernetzung', netIncome: 2700, link: 'https://web.arbeitsagentur.de/berufenet/beruf/133560', cat: 'IT' },
+		{ title: 'Fachinformatiker/in - Systemintegration', netIncome: 2700, link: 'https://web.arbeitsagentur.de/berufenet/beruf/7847', cat: 'IT' },
+		{ title: 'Fachkraft - Fruchtsafttechnik', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/3820', cat: 'LAB' },
+		{ title: 'Fachkraft - Lebensmitteltechnik', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/3898', cat: 'LAB' },
+		{ title: 'Fachkraft - Metalltechnik - Konstruktionstechnik', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/122290', cat: 'MECH' },
+		{ title: 'Fachkraft - Metalltechnik - Montagetechnik', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/122292', cat: 'MECH' },
+		{ title: 'Fachkraft - Metalltechnik - Umform- und Drahttechnik', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/122286', cat: 'MECH' },
+		{ title: 'Fachkraft - Metalltechnik - Zerspanungstechnik', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/122288', cat: 'MECH' },
+		{ title: 'Fachkraft - Straßen- und Verkehrstechnik', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/14374', cat: 'VER' },
+		{ title: 'Fachkraft - Veranstaltungstechnik', netIncome: 2350, link: 'https://web.arbeitsagentur.de/berufenet/beruf/129457', cat: 'MED' },
+		{ title: 'Fachkraft - Wasserwirtschaft', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/14376', cat: 'LAB' },
+		{ title: 'Feinoptiker/in', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/1123', cat: 'GES' },
+		{ title: 'Feinwerkmechaniker/in', netIncome: 2550, link: 'https://web.arbeitsagentur.de/berufenet/beruf/15145', cat: 'MECH' },
+		{ title: 'Fertigungsmechaniker/in', netIncome: 2650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2488', cat: 'MECH' },
+		{ title: 'Flachglastechnologe/-technologin', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/131053', cat: 'BAU' },
+		{ title: 'Fluggerätelektroniker/in', netIncome: 3100, link: 'https://web.arbeitsagentur.de/berufenet/beruf/123282', cat: 'VER' },
+		{ title: 'Fluggerätmechaniker/in - Fertigungstechnik', netIncome: 3100, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2187', cat: 'VER' },
+		{ title: 'Fluggerätmechaniker/in - Instandhaltungstechnik', netIncome: 3100, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2398', cat: 'VER' },
+		{ title: 'Fluggerätmechaniker/in - Triebwerkstechnik', netIncome: 3100, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2403', cat: 'VER' },
+		{ title: 'Fluglotse/Fluglotsin', netIncome: 6750, link: 'https://web.arbeitsagentur.de/berufenet/beruf/7355', cat: 'VER' },
+		{ title: 'Foto- und medientechnische/r Assistent/in', netIncome: 2100, link: 'https://web.arbeitsagentur.de/berufenet/beruf/6461', cat: 'MED' },
+		{ title: 'Geomatiker/in', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/77494', cat: 'BAU' },
+		{ title: 'Gestalter/in - immersive Medien', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/137579', cat: 'MED' },
+		{ title: 'Gießereimechaniker/in', netIncome: 2750, link: 'https://web.arbeitsagentur.de/berufenet/beruf/126847', cat: 'MECH' },
+		{ title: 'Hörakustiker/in', netIncome: 2350, link: 'https://web.arbeitsagentur.de/berufenet/beruf/129408', cat: 'GES' },
+		{ title: 'Holzbearbeitungsmechaniker/in', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/29057', cat: 'BAU' },
+		{ title: 'Holzmechaniker/in', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/126805', cat: 'BAU' },
+		{ title: 'Industrieelektriker/in - Betriebstechnik', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/76430', cat: 'ELEK' },
+		{ title: 'Industrieelektriker/in - Geräte und Systeme', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/76438', cat: 'ELEK' },
+		{ title: 'Industriekeramiker/in Anlagentechnik', netIncome: 2600, link: 'https://web.arbeitsagentur.de/berufenet/beruf/34941', cat: 'BAU' },
+		{ title: 'Industriemechaniker/in', netIncome: 2750, link: 'https://web.arbeitsagentur.de/berufenet/beruf/29055', cat: 'MECH' },
+		{ title: 'Informationselektroniker/in', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/134721', cat: 'ELEK' },
+		{ title: 'IT-System-Elektroniker/in', netIncome: 2550, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2927', cat: 'IT' },
+		{ title: 'Karosserie- und Fahrzeugbaumechaniker/in', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/124530', cat: 'MECH' },
+		{ title: 'Kaufmännische/r Assistent/in - Betriebsinformatik', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/14517', cat: 'IT' },
+		{ title: 'Kaufmann/-frau - Digitalisierungsmanagement', netIncome: 2700, link: 'https://web.arbeitsagentur.de/berufenet/beruf/133555', cat: 'IT' },
+		{ title: 'Kaufmann/-frau - IT-System-Management', netIncome: 2700, link: 'https://web.arbeitsagentur.de/berufenet/beruf/133558', cat: 'IT' },
+		{ title: 'Konstruktionsmechaniker/in', netIncome: 2750, link: 'https://web.arbeitsagentur.de/berufenet/beruf/29049', cat: 'MECH' },
+		{ title: 'Kraftfahrzeugmechatroniker/in - Karosserietechnik', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/122564', cat: 'ELEK' },
+		{ title: 'Kraftfahrzeugmechatroniker/in - Motorradtechnik', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/27300', cat: 'ELEK' },
+		{ title: 'Kraftfahrzeugmechatroniker/in - Nutzfahrzeugtechnik', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/27298', cat: 'ELEK' },
+		{ title: 'Kraftfahrzeugmechatroniker/in - Personenkraftwagentechnik', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/14799', cat: 'ELEK' },
+		{ title: 'Kraftfahrzeugmechatroniker/in - System- und Hochvolttechnik', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/122563', cat: 'ELEK' },
+		{ title: 'Kunststoff- und Kautschuktechnologe/-technologin', netIncome: 2650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/137752', cat: 'BAU' },
+		{ title: 'Lacklaborant/in', netIncome: 2750, link: 'https://web.arbeitsagentur.de/berufenet/beruf/6415', cat: 'LAB' },
+		{ title: 'Land- und Baumaschinenmechatroniker/in', netIncome: 2450, link: 'https://web.arbeitsagentur.de/berufenet/beruf/124412', cat: 'ELEK' },
+		{ title: 'Lebensmitteltechnische/r Assistent/in', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/5879', cat: 'LAB' },
+		{ title: 'Maschinen- und Anlagenführer/in', netIncome: 2200, link: 'https://web.arbeitsagentur.de/berufenet/beruf/132652', cat: 'MECH' },
+		{ title: 'Mathematisch-technische/r Assistent/in', netIncome: 2550, link: 'https://web.arbeitsagentur.de/berufenet/beruf/14087', cat: 'IT' },
+		{ title: 'Mathematisch-technische/r Softwareentwickler/in', netIncome: 2850, link: 'https://web.arbeitsagentur.de/berufenet/beruf/51029', cat: 'IT' },
+		{ title: 'Mechatroniker/in', netIncome: 2800, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2868', cat: 'MECH' },
+		{ title: 'Mechatroniker/in - Kältetechnik', netIncome: 2650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/35283', cat: 'MECH' },
+		{ title: 'Mediengestalter/in - Bild und Ton', netIncome: 2250, link: 'https://web.arbeitsagentur.de/berufenet/beruf/8533', cat: 'MED' },
+		{ title: 'Medientechnologe/-technologin Druck', netIncome: 2450, link: 'https://web.arbeitsagentur.de/berufenet/beruf/90572', cat: 'MED' },
+		{ title: 'Medientechnologe/-technologin Siebdruck', netIncome: 2450, link: 'https://web.arbeitsagentur.de/berufenet/beruf/90578', cat: 'MED' },
+		{ title: 'Medizinische/r Sektions- und Präparationsassistent/in', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/9013', cat: 'GES' },
+		{ title: 'Medizinische/r Technologe/Technologin', netIncome: 2550, link: 'https://web.arbeitsagentur.de/berufenet/beruf/135579', cat: 'GES' },
+		{ title: 'Metallbauer/in - Konstruktionstechnik', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2277', cat: 'MECH' },
+		{ title: 'Metallbauer/in - Metallgestaltung', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2267', cat: 'MECH' },
+		{ title: 'Mikrotechnologe/-technologin', netIncome: 2750, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2757', cat: 'MECH' },
+		{ title: 'Milchtechnologe/-technologin', netIncome: 2550, link: 'https://web.arbeitsagentur.de/berufenet/beruf/77248', cat: 'LAB' },
+		{ title: 'Milchwirtschaftliche/r Laborant/in', netIncome: 2550, link: 'https://web.arbeitsagentur.de/berufenet/beruf/6342', cat: 'LAB' },
+		{ title: 'Naturwerksteinmechaniker/in', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/846', cat: 'BAU' },
+		{ title: 'Oberflächenbeschichter/in', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/34975', cat: 'MECH' },
+		{ title: 'Orthopädietechnik-Mechaniker/in', netIncome: 2250, link: 'https://web.arbeitsagentur.de/berufenet/beruf/122351', cat: 'GES' },
+		{ title: 'Packmitteltechnologe/-technologin', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/90568', cat: 'MECH' },
+		{ title: 'Papiertechnologe/-technologin', netIncome: 2800, link: 'https://web.arbeitsagentur.de/berufenet/beruf/78502', cat: 'BAU' },
+		{ title: 'Pflanzentechnologe/-technologin', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/122322', cat: 'LAB' },
+		{ title: 'Pharmakant/in', netIncome: 3150, link: 'https://web.arbeitsagentur.de/berufenet/beruf/1151', cat: 'LAB' },
+		{ title: 'Pharmazeutisch-technische/r Assistent/in', netIncome: 2150, link: 'https://web.arbeitsagentur.de/berufenet/beruf/8910', cat: 'GES' },
+		{ title: 'Physikalisch-technische/r Assistent/in', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/5826', cat: 'LAB' },
+		{ title: 'Physiklaborant/in', netIncome: 2750, link: 'https://web.arbeitsagentur.de/berufenet/beruf/6351', cat: 'LAB' },
+		{ title: 'Produktionsmechaniker/in - Textil', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/33210', cat: 'MECH' },
+		{ title: 'Produktionstechnologe/-technologin', netIncome: 2850, link: 'https://web.arbeitsagentur.de/berufenet/beruf/67789', cat: 'MECH' },
+		{ title: 'Rollladen- und Sonnenschutzmechatroniker/in', netIncome: 2300, link: 'https://web.arbeitsagentur.de/berufenet/beruf/27530', cat: 'ELEK' },
+		{ title: 'Schiffsbetriebstechnische/r Assistent/in', netIncome: 2700, link: 'https://web.arbeitsagentur.de/berufenet/beruf/14506', cat: 'VER' },
+		{ title: 'Schiffsmechaniker/in', netIncome: 2850, link: 'https://web.arbeitsagentur.de/berufenet/beruf/7273', cat: 'VER' },
+		{ title: 'Stanz- und Umformmechaniker/in', netIncome: 2600, link: 'https://web.arbeitsagentur.de/berufenet/beruf/122285', cat: 'MECH' },
+		{ title: 'Süßwarentechnologe/-technologin', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/124029', cat: 'LAB' },
+		{ title: 'Technische/r Assistent/in - Automatisierungstechnik', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/14302', cat: 'ELEK' },
+		{ title: 'Technische/r Assistent/in - Bautechnik', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/5620', cat: 'BAU' },
+		{ title: 'Technische/r Assistent/in - medizinische Gerätetechnik', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2874', cat: 'GES' },
+		{ title: 'Technische/r Assistent/in - regenerative Energietechnik', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/33197', cat: 'ELEK' },
+		{ title: 'Technische/r Modellbauer/in', netIncome: 2650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/76568', cat: 'MECH' },
+		{ title: 'Technische/r Produktdesigner/in', netIncome: 2550, link: 'https://web.arbeitsagentur.de/berufenet/beruf/90571', cat: 'MECH' },
+		{ title: 'Technische/r Systemplaner/in', netIncome: 2550, link: 'https://web.arbeitsagentur.de/berufenet/beruf/90585', cat: 'MECH' },
+		{ title: 'Textillaborant/in', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/6419', cat: 'LAB' },
+		{ title: 'Uhrmacher/in', netIncome: 2250, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2502', cat: 'MECH' },
+		{ title: 'Umweltschutztechnische/r Assistent/in', netIncome: 2400, link: 'https://web.arbeitsagentur.de/berufenet/beruf/6045', cat: 'LAB' },
+		{ title: 'Umwelttechnologe/-technologin', netIncome: 2550, link: 'https://web.arbeitsagentur.de/berufenet/beruf/138722', cat: 'BAU' },
+		{ title: 'Verfahrensmechaniker/in - Beschichtungstechnik', netIncome: 2550, link: 'https://web.arbeitsagentur.de/berufenet/beruf/4613', cat: 'MECH' },
+		{ title: 'Verfahrensmechaniker/in - Glastechnik', netIncome: 2550, link: 'https://web.arbeitsagentur.de/berufenet/beruf/14318', cat: 'BAU' },
+		{ title: 'Verfahrensmechaniker/in - Steine- und Erdenindustrie', netIncome: 2600, link: 'https://web.arbeitsagentur.de/berufenet/beruf/27429', cat: 'BAU' },
+		{ title: 'Verfahrenstechnologe/-technologin Mühlen/Getreide', netIncome: 2450, link: 'https://web.arbeitsagentur.de/berufenet/beruf/130257', cat: 'LAB' },
+		{ title: 'Verfahrenstechnologe/-technologin Metall', netIncome: 2900, link: 'https://web.arbeitsagentur.de/berufenet/beruf/130918', cat: 'MECH' },
+		{ title: 'Verkehrsflugzeugführer/in (ATPL (A))', netIncome: 5500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/7340', cat: 'VER' },
+		{ title: 'Vermessungstechniker/in', netIncome: 2500, link: 'https://web.arbeitsagentur.de/berufenet/beruf/77492', cat: 'BAU' },
+		{ title: 'Weintechnologe/-technologin', netIncome: 2250, link: 'https://web.arbeitsagentur.de/berufenet/beruf/122362', cat: 'LAB' },
+		{ title: 'Werkfeuerwehrmann/-frau', netIncome: 2700, link: 'https://web.arbeitsagentur.de/berufenet/beruf/76769', cat: 'BAU' },
+		{ title: 'Werkstoffprüfer/in', netIncome: 2650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/122368', cat: 'MECH' },
+		{ title: 'Werkzeugmechaniker/in', netIncome: 2750, link: 'https://web.arbeitsagentur.de/berufenet/beruf/29051', cat: 'MECH' },
+		{ title: 'Zahntechniker/in', netIncome: 2150, link: 'https://web.arbeitsagentur.de/berufenet/beruf/2622', cat: 'GES' },
+		{ title: 'Zerspanungsmechaniker/in', netIncome: 2650, link: 'https://web.arbeitsagentur.de/berufenet/beruf/29053', cat: 'MECH' },
+		{ title: 'Zweiradmechatroniker/in', netIncome: 2150, link: 'https://web.arbeitsagentur.de/berufenet/beruf/124409', cat: 'ELEK' }
+	];
+
+    let state = {
+        step: -1,
+        selections: {},
+        history: [],
+        multiplier: 1.0,
+        visibleJobCount: 3,
+        selectedCategory: null // NEU: Speichert die gewählte Kategorie
+    };
+
+    const app = document.getElementById('app');
+
+    function init() {
+        renderStartScreen();
+    }
+
+    function renderStartScreen() {
+        app.innerHTML = `
+            <div class="card" id="start-screen">
+                ${getThemeBtnHTML()}
+                <div style="text-align:center; margin-bottom: 20px; font-size: 3rem;">💸</div>
+                <h1>MINT Lifestyle Check</h1>
+                <p>Mit welchem MINT-Beruf kannst du dir dein Traumleben leisten?</p>
+                <p>Klick dich durch den Check, finde deine Kosten heraus und wähle dann deinen Bereich.</p>
+                <button class="btn btn-primary" onclick="startCheck()">Starte den Check 🚀</button>
+            </div>
+        `;
+    }
+
+    function renderQuestion() {
+        if (state.step >= categories.length) {
+            renderResultScreen();
+            return;
+        }
+
+        const category = categories[state.step];
+        
+        let dotsHTML = '<div class="progress-dots">';
+        for(let i=0; i<categories.length; i++) {
+            dotsHTML += `<div class="dot ${i <= state.step ? 'active' : ''}"></div>`;
+        }
+        dotsHTML += '</div>';
+
+        let optionsHTML = '<div class="options-grid">';
+        
+        category.options.forEach(opt => {
+            let priceDisplay = '';
+            if (!category.isMultiplierFactor) {
+                let cost = opt.value;
+                if (category.useMultiplier) {
+                    cost = Math.round(cost * state.multiplier);
+                }
+                priceDisplay = `<span class="option-price">${cost} €</span>`;
+            } else {
+                priceDisplay = `<span class="option-price" style="font-size:0.8rem; color:#6b7280;">Faktor ${opt.value}</span>`;
+            }
+
+            optionsHTML += `
+                <div class="option-card" onclick="selectOption('${opt.text}', ${opt.value}, false)">
+                    <div class="emoji-box">${opt.emoji}</div>
+                    <div class="option-text">
+                        <span class="option-title">${opt.text}</span>
+                        <span class="option-desc">${opt.desc}</span>
+                    </div>
+                    ${priceDisplay}
+                </div>
+            `;
+        });
+
+        if (category.allowCustom) {
+            optionsHTML += `
+                <div class="custom-input-wrapper">
+                    <input type="number" id="customVal" class="custom-input" placeholder="Eigener Betrag (€)...">
+                    <button class="btn btn-primary" style="width: auto;" onclick="submitCustom()">OK</button>
+                </div>
+            `;
+        }
+        
+        optionsHTML += '</div>';
+
+        let backBtnHTML = state.step > 0 
+            ? `<button class="btn btn-outline" onclick="prevStep()">⬅ Zurück</button>` 
+            : '';
+
+        app.innerHTML = `
+            <div class="card fade-in">
+                ${getThemeBtnHTML()}
+                ${dotsHTML}
+                <h2>${category.title}</h2>
+                <p style="font-weight: 500; color: var(--text-main);">${category.question}</p>
+                ${optionsHTML}
+                ${backBtnHTML}
+            </div>
+        `;
+    }
+
+    function renderResultScreen() {
+        const rawTotal = calculateTotal();
+        const buffer = Math.round(rawTotal * 0.1);
+        const total = rawTotal + buffer;
+
+        const maxBudget = 4500;
+        const percent = Math.min((total / maxBudget) * 100, 100);
+		const coverPercent = 100 - percent;
+        const ELITE_THRESHOLD = 3200;
+        const CAREER_GROWTH_FACTOR = 1.5;
+
+        // Allgemeine Machbarkeits-Analyse (Unabhängig von Kategorie)
+        let canAffordStandard = mintJobs.some(job => job.netIncome >= total && job.netIncome < ELITE_THRESHOLD);
+        let fitsEliteNow = !canAffordStandard && mintJobs.some(job => job.netIncome >= total && job.netIncome >= ELITE_THRESHOLD);
+        let canAffordFutureStandard = !canAffordStandard && mintJobs.some(job => 
+            job.netIncome < ELITE_THRESHOLD && (job.netIncome * CAREER_GROWTH_FACTOR) >= total
+        );
+
+        // Feedback Texte
+        let feedbackTitle = "";
+        let feedbackText = "";
+
+        if (canAffordStandard) {
+            feedbackTitle = "Nice! Das ist machbar. 🎉";
+            feedbackText = "Dein Lifestyle ist realistisch! Viele klassische MINT-Berufe finanzieren dir das schon kurz nach der Ausbildung.";
+        } else if (canAffordFutureStandard) {
+            feedbackTitle = "Karriere-Ziel voraus! 🚀";
+            feedbackText = "Zum Berufseinstieg reicht es noch nicht ganz, aber das ist normal! Mit Berufserfahrung oder einer Weiterbildung (Techniker/Meister) ist dein Lifestyle absolut finanzierbar.";
+        } else if (fitsEliteNow) {
+            feedbackTitle = "High-Roller Status! 💸";
+            feedbackText = "Dein Leben ist teuer! Aktuell können sich das direkt nach der Ausbildung nur absolute Spezialisten (wie z.B. Fluglotsen) leisten. Es gibt aber Wege dein Ziel zu erreichen. Mit Weiterbildungen / einem Studium oder Selbstständigkeit nach der Ausbildung kannst du dein Ziel erreichen. Sei dir aber bewusst dass du dich dafür anstrengen musst. ";
+        } else {
+            feedbackTitle = "Uff, Realitäts-Check! 🛑";
+            feedbackText = "Dieser Lifestyle sprengt den Rahmen fast aller Ausbildungsberufe – selbst mit viel Berufserfahrung. Deine Möglichkeiten: Ansprüche runter oder Studium anschließen und auf eine Führungsposition hinarbeiten. Eine Selbständigkeit bietet die auch die Chance auf diesen Lifestyle (hohes Risiko aber auch die Möglichkeit viel zu verdienen).";
+        }
+
+        // Summary List
+        let summaryHTML = '<ul class="summary-list">';
+        state.history.forEach(item => {
+            summaryHTML += `
+                <li class="summary-item">
+                    <span>${item.text}</span>
+                    <strong>${item.cost > 0 ? item.cost + ' €' : ''}</strong>
+                </li>`;
+        });
+        summaryHTML += `
+            <li class="summary-item" style="color: var(--text-light); font-style:italic;">
+                <span>+ Versteckte Kosten (Versicherungen, Kontogebühren, GEZ, Puffer 10%)</span>
+                <strong>${buffer} €</strong>
+            </li>
+        `;
+        summaryHTML += '</ul>';
+
+        // --- HIER BEGINNT DIE NEUE LOGIK FÜR DIE ANZEIGE ---
+        
+        let dynamicContentHTML = '';
+
+        // Fall 1: Noch keine Kategorie gewählt -> Zeige Auswahl-Grid
+        if (!state.selectedCategory) {
+            let gridHTML = '<div class="category-grid">';
+            for (const [key, def] of Object.entries(categoryDefinitions)) {
+                gridHTML += `
+                    <div class="category-btn" onclick="selectCategory('${key}')">
+                        <div class="cat-icon">${def.icon}</div>
+                        <div class="cat-label">${def.label}</div>
+                    </div>
+                `;
+            }
+            gridHTML += '</div>';
+
+            dynamicContentHTML = `
+                <h3 style="margin-top:20px;">Wähle deinen Bereich 👇</h3>
+                <p style="font-size: 0.9rem;">Schau dir an, welche Jobs in deinem Interessensgebiet passen.</p>
+                ${gridHTML}
+            `;
+        } 
+        // Fall 2: Kategorie gewählt -> Zeige Jobs dieser Kategorie
+        else {
+            const catDef = categoryDefinitions[state.selectedCategory];
+            
+            // Filtere Jobs nach Kategorie
+            let catJobs = mintJobs.filter(job => job.cat === state.selectedCategory);
+            
+            // Sortierung innerhalb der Kategorie (Beste Passung zuerst)
+            catJobs.sort((a,b) => {
+                const aCovers = a.netIncome >= total;
+                const bCovers = b.netIncome >= total;
+                if (aCovers && !bCovers) return -1;
+                if (!aCovers && bCovers) return 1;
+                return b.netIncome - a.netIncome; // Höchstes Gehalt zuerst
+            });
+
+            // Job Liste rendern
+            let jobsHTML = '';
+            
+            if(catJobs.length === 0) {
+                jobsHTML = '<p>Keine Berufe in dieser Kategorie gefunden.</p>';
+            } else {
+                catJobs.forEach(job => {
+                    const isCovered = job.netIncome >= total;
+                    const isElite = job.netIncome > ELITE_THRESHOLD;
+                    const potential = Math.round(job.netIncome * CAREER_GROWTH_FACTOR);
+                    const isCoveredLater = potential >= total;
+                    
+                    let badgeText = "";
+                    let badgeClass = "";
+                    
+                    if (isCovered) {
+                        badgeText = isElite ? "Spezial-Karriere" : "Passt direkt";
+                        badgeClass = isElite ? "status-elite" : "status-standard";
+                    } else if (isCoveredLater) {
+                        badgeText = "Ziel: Weiterbildung";
+                        badgeClass = "status-standard";
+                    } else {
+                        badgeText = "Zu teuer";
+                    }
+
+                    const diff = job.netIncome - total;
+                    const diffDisplay = isCovered ? `+${diff}€ Rest` : `-${Math.abs(diff)}€`;
+                    const diffColor = isCovered ? 'var(--success)' : 'var(--danger)';
+
+                    let hintHTML = '';
+                    if (!isCovered && isCoveredLater) {
+                         hintHTML = `<span class="career-hint">📈 Mit Erfahrung/Weiterbildung (ca. ${potential}€) finanzierbar!</span>`;
+                    }
+
+                    jobsHTML += `
+                        <div class="job-card">
+                            <span class="job-title">${job.title} ${badgeText ? `<span class="status-badge ${badgeClass}">${badgeText}</span>` : ''}</span>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                                <span class="job-salary">Start: ca. ${job.netIncome} € Netto</span>
+                                <span style="font-size:0.8rem; font-weight:bold; color: ${diffColor}">${diffDisplay}</span>
+                            </div>
+                            ${hintHTML}
+                            <a href="${job.link}" target="_blank" class="btn btn-link">Check den Job ↗</a>
+                        </div>
+                    `;
+                });
+            }
+
+            dynamicContentHTML = `
+                <div class="section-header">
+                    <button class="btn btn-outline btn-sm" onclick="resetCategory()">⬅ Bereiche</button>
+                    <h3>${catDef.icon} ${catDef.label}</h3>
+                </div>
+                <div id="job-list">
+                    ${jobsHTML}
+                </div>
+            `;
+        }
+
+
+        app.innerHTML = `
+            <div class="card fade-in">
+                ${getThemeBtnHTML()}
+                <h2>Dein Ergebnis</h2>
+                
+                <div class="total-cost-box">
+                    <div class="total-cost-amount">${total} €</div>
+                    <div class="total-cost-label">Monatliche Kosten (inkl. Puffer)</div>
+                </div>
+
+                ${summaryHTML}
+
+                <div style="margin-bottom: 25px;">
+                    <span style="font-size: 0.8rem; font-weight: bold; color: var(--text-light);">FINANZIERBARKEIT</span>                   
+                         <div class="meter-container">
+							<div class="meter-fill" style="width: ${coverPercent}%"></div>			
+                </div>
+
+                <h3>${feedbackTitle}</h3>
+                <p>${feedbackText}</p>
+                <hr style="border:0; border-top:1px dashed var(--border-color); margin: 20px 0;">
+
+                ${dynamicContentHTML}
+
+                <button class="btn btn-primary" onclick="restart()" style="margin-top: 20px;">Alles neu starten 🔄</button>
+				
+				<p style="font-size: 0.7rem; color: #9ca3af; text-align: center; margin-top: 25px; margin-bottom: 0;">
+                    *Hinweis: Alle Gehaltsangaben dienen der Orientierung. Ansprüche können daraus nicht abgeleitet werden. Es sind Richtwerte, die in der Realität sehr unterschiedlich sein können.
+                </p>
+            </div>
+        `;
+    }
+
+    window.startCheck = function() {
+        state.step = 0;
+        state.selections = {};
+        state.history = [];
+        state.multiplier = 1.0;
+        state.visibleJobCount = 3;
+        state.selectedCategory = null;
+        renderQuestion();
+    }
+
+    window.prevStep = function() {
+        if (state.step > 0) {
+            state.step--;
+            state.history.pop();
+            renderQuestion();
+        }
+    }
+
+    window.selectOption = function(text, value, isCustom) {
+        const category = categories[state.step];
+        let finalCost = 0;
+
+        if (category.isMultiplierFactor) {
+            state.multiplier = value;
+            state.history.push({ text: `${category.title}: ${text}`, cost: 0 });
+        } 
+        else {
+            if (isCustom) {
+                finalCost = parseInt(value);
+            } else {
+                if (category.useMultiplier) {
+                    finalCost = Math.round(value * state.multiplier);
+                } else {
+                    finalCost = value;
+                }
+            }
+            
+            state.selections[category.id] = finalCost;
+            state.history.push({ 
+                text: `${category.title}: ${text}`, 
+                cost: finalCost 
+            });
+        }
+
+        state.step++;
+        renderQuestion();
+    }
+
+    window.submitCustom = function() {
+        const input = document.getElementById('customVal');
+        const val = input.value;
+        if(val && val >= 0) {
+            selectOption('Eigener Wert', val, true);
+        } else {
+            alert("Bitte gib einen gültigen Betrag ein! 🤨");
+        }
+    }
+
+    function calculateTotal() {
+        let sum = 0;
+        for (let key in state.selections) {
+            sum += state.selections[key];
+        }
+        return sum;
+    }
+
+    // Neue Funktionen für Kategorie-Auswahl
+    window.selectCategory = function(catKey) {
+        state.selectedCategory = catKey;
+        renderResultScreen();
+    }
+
+    window.resetCategory = function() {
+        state.selectedCategory = null;
+        renderResultScreen();
+    }
+
+    window.restart = function() {
+        init();
+    }
+
+    init();
+
+</script>
+
+</body>
+</html>
